@@ -1,0 +1,29 @@
+{
+    "name": "klamote/brittle",
+    "description": "A small parser for fixed width (brittle) text files",
+    "type": "library",
+    "require": {
+        "box/spout": "^2.7"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.2",
+        "mockery/mockery": "^0.9.9"
+    },
+    "autoload": {
+        "psr-4": {
+            "KrisLamote\\Brittle\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "KrisLamote\\Brittle\\Tests\\": "tests"
+        }
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Kris Lamote",
+            "email": "kris.lamote@it-kitchen.be"
+        }
+    ]
+}
