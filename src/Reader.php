@@ -182,16 +182,12 @@ class Reader implements Countable
     }
 
     /**
-     * properly clean up file pointer
+     * properly clean up file pointers
      */
     public function __destruct()
     {
-        if (!$this->document) {
-            return;
-        }
-
-        fclose($this->document);
-        $this->document = null;
+        $this->closeFileHandle('document')
+             ->closeFileHandle('csv');
     }
 
     /**
@@ -239,6 +235,20 @@ class Reader implements Countable
         }
 
         $this->fileChecked = true;
+
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @return $this
+     */
+    private function closeFileHandle(string $name)
+    {
+        if ($this->$name) {
+            fclose($this->$name);
+            $this->$name = null;
+        }
 
         return $this;
     }
