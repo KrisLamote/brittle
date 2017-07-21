@@ -25,4 +25,9 @@ Reader::fromString($aString)
             ->toCsv($filePath);
 ```
 
-See ReaderTest for further details.
+See [ReaderTest](tests/ReaderTest.php) for further details.
+
+License
+-------
+
+The MIT License (MIT). Please see [LICENSE](LICENSE) for more information.
