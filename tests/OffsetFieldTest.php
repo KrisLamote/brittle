@@ -2,15 +2,15 @@
 
 namespace KrisLamote\Brittle\Tests;
 
-use KrisLamote\Brittle\Field;
+use KrisLamote\Brittle\OffsetField;
 use KrisLamote\Brittle\Reader;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class FieldTest
+ * Class OffsetFieldTest
  * @package KrisLamote\Brittle\Tests
  */
-class FieldTest extends TestCase
+class OffsetFieldTest extends TestCase
 {
 
     /**
@@ -18,10 +18,10 @@ class FieldTest extends TestCase
      */
     public function canBeInstantiated()
     {
-        $field = new Field('bar', 2, 4);
+        $field = new OffsetField('bar', 2, 4);
 
-        $this->assertInstanceOf(Field::class, $field);
-        $this->assertEquals('bar', $field->label);
+        $this->assertInstanceOf(OffsetField::class, $field);
+        $this->assertEquals('bar', $field->getLabel());
         $this->assertEquals(2, $field->offset);
         $this->assertEquals(4, $field->length);
     }
@@ -31,10 +31,10 @@ class FieldTest extends TestCase
      */
     public function canBeInstantiatedWithDefaults()
     {
-        $field = new Field('foo');
+        $field = new OffsetField('foo');
 
-        $this->assertInstanceOf(Field::class, $field);
-        $this->assertEquals('foo', $field->label);
+        $this->assertInstanceOf(OffsetField::class, $field);
+        $this->assertEquals('foo', $field->getLabel());
         $this->assertEquals(1, $field->offset);
         $this->assertEquals(1, $field->length);
     }
@@ -45,7 +45,7 @@ class FieldTest extends TestCase
      */
     public function canConvertToAwkSubstringCommand()
     {
-        $field = new Field('bar', 2, 4);
+        $field = new OffsetField('bar', 2, 4);
 
         $this->assertEquals('substr($0, 2, 4)', $field->awkSubstr());
     }

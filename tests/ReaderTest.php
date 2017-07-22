@@ -3,7 +3,8 @@
 namespace KrisLamote\Brittle\Tests;
 
 use KrisLamote\Brittle\Exception\RecordLengthException;
-use KrisLamote\Brittle\Field;
+use KrisLamote\Brittle\FixedField;
+use KrisLamote\Brittle\OffsetField;
 use KrisLamote\Brittle\Reader;
 use \Mockery as Mockery;
 use PHPUnit\Framework\TestCase;
@@ -63,25 +64,42 @@ class ReaderTest extends TestCase
     }
 
     /**
+     * @todo Probably fits better as an integration test
      * @test
      */
-    public function parsesSingleField()
+    public function parsesOffsetField()
     {
-        $field = Mockery::mock(Field::class);
-        $field->label = 'foo';
-        $field->shouldReceive('awkSubstr')->andReturn('substr($0, 8, 2)');
+        $field = Mockery::mock(OffsetField::class);
+        $field->shouldReceive('getLabel')->andReturn('foo')
+              ->shouldReceive('awkSubstr')->andReturn('substr($0, 8, 2)');
 
-        $reader = Reader::fromString($this->fileString(2))
+        $reader = Reader::fromString($this->fileString(1))
                           ->withField($field)
                           ->parse();
 
         $row = $reader->first();
         $this->assertTrue(property_exists($row, 'foo'), "'foo' property is missing");
         $this->assertEquals('89', $row->foo);
+    }
 
-        $row = $reader->next();
+    /**
+     * @todo Probably fits better as an integration test
+     * @test
+     * @group temp
+     */
+    public function parsesFixedField()
+    {
+        $field = Mockery::mock(FixedField::class);
+        $field->shouldReceive('getLabel')->andReturn('foo')
+            ->shouldReceive('awkSubstr')->andReturn('"bar"');
+
+        $reader = Reader::fromString($this->fileString(1))
+            ->withField($field)
+            ->parse();
+
+        $row = $reader->first();
         $this->assertTrue(property_exists($row, 'foo'), "'foo' property is missing");
-        $this->assertEquals('89', $row->foo);
+        $this->assertEquals('bar', $row->foo);
     }
 
     /**
@@ -90,8 +108,8 @@ class ReaderTest extends TestCase
     public function parsesMultipleFields()
     {
         $fields = [
-            new Field('foo', 8, 2),
-            new Field('bar', 3, 5)
+            new OffsetField('foo', 8, 2),
+            new OffsetField('bar', 3, 5)
         ];
         $reader = Reader::fromString($this->fileString(2))
             ->withFields($fields)
@@ -114,7 +132,7 @@ class ReaderTest extends TestCase
         $filePath = __DIR__ . '/' . uniqid();
 
         Reader::fromString($this->fileString(2))
-            ->withFields([new Field('foo', 8, 2), new Field('bar', 3, 5)])
+            ->withFields([new OffsetField('foo', 8, 2), new OffsetField('bar', 3, 5)])
             ->parse()
             ->toCsv($filePath);
 

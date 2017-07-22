@@ -20,7 +20,10 @@ Usage
 
 ```php
 Reader::fromString($aString)
-            ->withFields([new Field('foo', 1, 4)])
+            ->withFields([
+                new OffsetField('foo', 1, 4)],
+                new FixedField('fix', 'bar')
+            )
             ->parse()
             ->toCsv($filePath);
 ```

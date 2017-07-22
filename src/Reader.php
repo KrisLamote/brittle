@@ -130,7 +130,7 @@ class Reader implements Countable
         $fieldCommands = [];
         foreach ($this->fields as $field) {
             $fieldCommands[] = $field->awkSubstr();
-            $this->keys[] = $field->label;
+            $this->keys[] = $field->getLabel();
         }
 
         $this->csv = tmpfile();
@@ -140,7 +140,7 @@ class Reader implements Countable
         $header = implode(',', $this->keys);
         $awkFields = implode(', ', $fieldCommands);
 
-        $command = "awk -v OFS=, 'BEGIN{print(\"{$header}\")}{print {$awkFields}}' {$source} > {$target}";
+        $command = "awk -v OFS=, 'BEGIN{print \"{$header}\" }{print {$awkFields}}' {$source} > {$target}";
         exec($command); // @todo: we need some checks here
 
         return $this;
