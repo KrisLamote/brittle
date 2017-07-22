@@ -102,8 +102,8 @@ class ReaderTest extends TestCase
         $this->assertEquals('89', $row->foo);
 
         $row = $reader->next();
-        $this->assertTrue(property_exists($row, 'foo'), "'foo' property is missing");
-        $this->assertEquals('89', $row->foo);
+        $this->assertTrue(property_exists($row, 'bar'), "'bar' property is missing");
+        $this->assertEquals('34567', $row->bar);
     }
 
     /**
