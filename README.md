@@ -21,9 +21,9 @@ Usage
 ```php
 Reader::fromString($aString)
             ->withFields([
-                new OffsetField('foo', 1, 4)],
+                new OffsetField('foo', 1, 4),
                 new FixedField('fix', 'bar')
-            )
+            ])
             ->parse()
             ->toCsv($filePath);
 ```
