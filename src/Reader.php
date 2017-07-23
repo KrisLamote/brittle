@@ -162,8 +162,11 @@ class Reader implements Countable
      */
     public function next()
     {
-        if (!feof($this->csv)) {
-            return (object) array_combine($this->keys, fgetcsv($this->csv));
+        if (!feof($this->csv) && (($data = fgetcsv($this->csv)) !== false)) {
+            if (!empty($data)) {
+                $row = array_combine($this->keys, array_map('trim', $data));
+                return (object) $row;
+            }
         }
 
         return (object) [];
@@ -175,8 +178,18 @@ class Reader implements Countable
      */
     public function toCsv(string $path)
     {
-        $internalCsvPath = stream_get_meta_data($this->csv)['uri'];
-        copy($internalCsvPath, $path);
+        rewind($this->csv);
+
+        $targetCsv = fopen($path, 'w');
+        while (($data = fgetcsv($this->csv)) !== false) {
+            if (!empty($data)) {
+                $row = array_combine(
+                    $this->keys,
+                    array_map('trim', $data)
+                );
+                fputcsv($targetCsv, $row);
+            }
+        }
 
         return $this;
     }

@@ -154,6 +154,22 @@ class ReaderTest extends TestCase
     }
 
     /**
+     * @test fields should be trimmed..
+     */
+    public function fieldsAreTrimmed()
+    {
+        $fileString = "1234567890   world  1234567890";
+
+        $reader = Reader::fromString($fileString)
+            ->withField(new OffsetField('hello', 11, 10))
+            ->parse();
+
+        $row = $reader->first();
+        $this->assertEquals('world', $row->hello);
+    }
+
+
+    /**
      * @param int $lineCount
      * @param int $length
      * @return string
