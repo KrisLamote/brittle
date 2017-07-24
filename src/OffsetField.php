@@ -60,4 +60,13 @@ class OffsetField implements Field
         return "substr($0, {$this->offset}, {$this->length})";
     }
 
+    /**
+     * @param $input
+     * @return string
+     */
+    public function parse($input)
+    {
+        return trim($input);
+    }
+
 }

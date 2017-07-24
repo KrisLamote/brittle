@@ -164,7 +164,13 @@ class Reader implements Countable
     {
         if (!feof($this->csv) && (($data = fgetcsv($this->csv)) !== false)) {
             if (!empty($data)) {
-                $row = array_combine($this->keys, array_map('trim', $data));
+                $values = [];
+                $stop = count($this->fields);
+                for ($i = 0; $i < $stop; $i++) {
+                    $values[$this->keys[$i]] = $this->fields[$i]->parse($data[$i]);
+                }
+
+                $row = array_combine($this->keys, array_map('trim', $values));
                 return (object) $row;
             }
         }

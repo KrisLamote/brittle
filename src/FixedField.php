@@ -46,4 +46,13 @@ class FixedField implements Field
         return "\"{$this->value}\"";
     }
 
+    /**
+     * @param $input
+     * @return string
+     */
+    public function parse($input)
+    {
+        return trim($this->value);
+    }
+
 }

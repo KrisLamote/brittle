@@ -2,6 +2,7 @@
 
 namespace KrisLamote\Brittle\Tests;
 
+use KrisLamote\Brittle\Field;
 use KrisLamote\Brittle\OffsetField;
 use KrisLamote\Brittle\Reader;
 use PHPUnit\Framework\TestCase;
@@ -20,6 +21,7 @@ class OffsetFieldTest extends TestCase
     {
         $field = new OffsetField('bar', 2, 4);
 
+        $this->assertInstanceOf(Field::class, $field);
         $this->assertInstanceOf(OffsetField::class, $field);
         $this->assertEquals('bar', $field->getLabel());
         $this->assertEquals(2, $field->offset);
