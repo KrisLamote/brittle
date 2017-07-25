@@ -2,6 +2,7 @@
 
 namespace KrisLamote\Brittle\Tests;
 
+use KrisLamote\Brittle\DateTimeField;
 use KrisLamote\Brittle\Exception\RecordLengthException;
 use KrisLamote\Brittle\FixedField;
 use KrisLamote\Brittle\OffsetField;
@@ -16,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 class ReaderTest extends TestCase
 {
     /**
-     * @ test Can be instantiated from a string
+     * @test Can be instantiated from a string
      */
     public function canBeInstantiatedFromAString()
     {
@@ -71,9 +72,10 @@ class ReaderTest extends TestCase
     {
         $field = Mockery::mock(OffsetField::class);
         $field->shouldReceive('getLabel')->andReturn('foo')
-              ->shouldReceive('awkSubstr')->andReturn('substr($0, 8, 2)');
+              ->shouldReceive('awkSubstr')->andReturn('substr($0, 8, 2)')
+              ->shouldReceive('parse')->andReturn('89');
 
-        $reader = Reader::fromString($this->fileString(1))
+        $reader = Reader::fromString('whatever')
                           ->withField($field)
                           ->parse();
 
@@ -85,15 +87,15 @@ class ReaderTest extends TestCase
     /**
      * @todo Probably fits better as an integration test
      * @test
-     * @group temp
      */
     public function parsesFixedField()
     {
         $field = Mockery::mock(FixedField::class);
         $field->shouldReceive('getLabel')->andReturn('foo')
-            ->shouldReceive('awkSubstr')->andReturn('"bar"');
+              ->shouldReceive('awkSubstr')->andReturn('"bar"')
+              ->shouldReceive('parse')->andReturn('bar');
 
-        $reader = Reader::fromString($this->fileString(1))
+        $reader = Reader::fromString('whatever')
             ->withField($field)
             ->parse();
 
@@ -103,25 +105,22 @@ class ReaderTest extends TestCase
     }
 
     /**
+     * @todo Probably fits better as an integration test
      * @test
      */
-    public function parsesMultipleFields()
+    public function parsesDateTimeField()
     {
-        $fields = [
-            new OffsetField('foo', 8, 2),
-            new OffsetField('bar', 3, 5)
-        ];
-        $reader = Reader::fromString($this->fileString(2))
-            ->withFields($fields)
+        $field = Mockery::mock(DateTimeField::class);
+        $field->shouldReceive('getLabel')->andReturn('my_date')
+            ->shouldReceive('parse')->with('whatever')->andReturn('Jul 2017');
+
+        $reader = Reader::fromString('whatever')
+            ->withField($field)
             ->parse();
 
         $row = $reader->first();
-        $this->assertTrue(property_exists($row, 'foo'), "'foo' property is missing");
-        $this->assertEquals('89', $row->foo);
-
-        $row = $reader->next();
-        $this->assertTrue(property_exists($row, 'bar'), "'bar' property is missing");
-        $this->assertEquals('34567', $row->bar);
+        $this->assertTrue(property_exists($row, 'my_date'), "'my_date' property is missing");
+        $this->assertEquals('Jul 2017', $row->my_date);
     }
 
     /**
@@ -158,10 +157,10 @@ class ReaderTest extends TestCase
      */
     public function fieldsAreTrimmed()
     {
-        $fileString = "1234567890   world  1234567890";
+        $fileString = '1234567890   world  1234567890';
 
         $reader = Reader::fromString($fileString)
-            ->withField(new OffsetField('hello', 11, 10))
+            ->withField(new OffsetField('hello', 10, 10))
             ->parse();
 
         $row = $reader->first();

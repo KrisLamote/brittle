@@ -9,11 +9,6 @@ use KrisLamote\Brittle\Exception\RecordLengthException;
 /**
  * Class Reader
  *
- * Warning: awk is being used for the ease of parsing the
- * fixed with file to a csv. Effectively this locks the library
- * to a *nix type OS
- * Obviously to be replaced for more flexibility
- *
  * @package KrisLamote\Brittle
  */
 class Reader implements Countable
@@ -57,9 +52,16 @@ class Reader implements Countable
     /**
      * Convert the string to a stream
      *
+     * CAUTION:
      * fopen('php://temp', 'r+') only writes to disk beyond a certain
-     * file size as long as there is nothing written to disk, we can't
-     * use awk so currently using tmpfile() in favour of php://temp
+     * file size as long as there is nothing written to disk
+     *
+     * in v0.0.1 awk was used for the initial csv parsing requiring a
+     * file on the filesystem therefore tmpfile() was used in favour of
+     * php://temp
+     *
+     * so this requires some testing with larger files (at least going
+     * beyond php://temp threshold)
      *
      * @param string $content the fix-width document as a string
      * @return Reader
@@ -69,7 +71,7 @@ class Reader implements Countable
         $instance = new static();
 
         if (!empty($content)) {
-            $instance->document = tmpfile(); // see comments above
+            $instance->document = fopen('php://temp', 'r+');
             fwrite($instance->document, $content);
         }
 
@@ -85,6 +87,7 @@ class Reader implements Countable
     public function withField(Field $field)
     {
         $this->fields[] = $field;
+        $this->keys[] = $field->getLabel();
 
         return $this;
     }
@@ -123,25 +126,20 @@ class Reader implements Countable
      */
     public function parse()
     {
-        if (empty(exec('which awk'))) {
-            throw new MissingSystemCommandException('awk is (for the time being) required');
+        $this->csv = tmpfile(); // file handle in readwrite (w+) mode
+
+        fputcsv($this->csv, $this->keys);
+
+        rewind($this->document);
+        while (!feof($this->document)) {
+            $inputRecord = fgets($this->document);
+
+            $row = array_map(function ($field) use ($inputRecord) {
+                return $field->parse($inputRecord);
+            }, $this->fields);
+
+            fputcsv($this->csv, $row);
         }
-
-        $fieldCommands = [];
-        foreach ($this->fields as $field) {
-            $fieldCommands[] = $field->awkSubstr();
-            $this->keys[] = $field->getLabel();
-        }
-
-        $this->csv = tmpfile();
-        $source = stream_get_meta_data($this->document)['uri'];
-        $target = stream_get_meta_data($this->csv)['uri'];
-
-        $header = implode(',', $this->keys);
-        $awkFields = implode(', ', $fieldCommands);
-
-        $command = "awk -v OFS=, 'BEGIN{print \"{$header}\" }{print {$awkFields}}' {$source} > {$target}";
-        exec($command); // @todo: we need some checks here
 
         return $this;
     }
@@ -164,7 +162,13 @@ class Reader implements Countable
     {
         if (!feof($this->csv) && (($data = fgetcsv($this->csv)) !== false)) {
             if (!empty($data)) {
-                $row = array_combine($this->keys, array_map('trim', $data));
+                $values = [];
+                $stop = count($this->fields);
+                for ($i = 0; $i < $stop; $i++) {
+                    $values[$this->keys[$i]] = $data[$i];
+                }
+
+                $row = array_combine($this->keys, array_map('trim', $values));
                 return (object) $row;
             }
         }
@@ -183,11 +187,10 @@ class Reader implements Countable
         $targetCsv = fopen($path, 'w');
         while (($data = fgetcsv($this->csv)) !== false) {
             if (!empty($data)) {
-                $row = array_combine(
-                    $this->keys,
-                    array_map('trim', $data)
+                fputcsv(
+                    $targetCsv,
+                    array_combine($this->keys,$data)
                 );
-                fputcsv($targetCsv, $row);
             }
         }
 

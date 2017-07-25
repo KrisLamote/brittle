@@ -5,11 +5,12 @@ namespace KrisLamote\Brittle;
 /**
  * Class OffsetField
  *
- * Because the Reader is (for the time being) using awk for parsing, the offset is 1-based
- * being taking offset 0 or 1 both start from the start of the string
- * See further comments in Reader as well
- *
- * awk substring: "..If start is less than one, substr() treats it as if it was one.."
+ * This is kind of the base field class, except that different types
+ * of fields require a different amount of instance variables.
+ * Instead of using a constructor which handles a variable amount of
+ * variables, currently the other Field classes are implemented as
+ * Adapters (iow using a OffsetField for delegating the base functionality
+ * to and implementing its own specialisation features)
  *
  * @package KrisLamote\Brittle
  */
@@ -53,11 +54,12 @@ class OffsetField implements Field
     }
 
     /**
+     * @param $input
      * @return string
      */
-    public function awkSubstr()
+    public function parse(string $input)
     {
-        return "substr($0, {$this->offset}, {$this->length})";
+        return trim(substr($input, $this->offset, $this->length));
     }
 
 }

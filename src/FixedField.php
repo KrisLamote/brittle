@@ -4,20 +4,21 @@ namespace KrisLamote\Brittle;
 
 /**
  * Class FixedField
+ * Adapter implementation on top of OffsetField
  *
  * @package KrisLamote\Brittle
  */
 class FixedField implements Field
 {
     /**
-     * @var string
-     */
-    private $label = '';
-
-    /**
      * @var
      */
     public $value = null;
+
+    /**
+     * @var OffsetField
+     */
+    private $offsetField;
 
     /**
      * FixedField constructor.
@@ -26,7 +27,7 @@ class FixedField implements Field
      */
     public function __construct($label, $value = null)
     {
-        $this->label = $label;
+        $this->offsetField = new OffsetField($label, 1, 0);
         $this->value = $value;
     }
 
@@ -35,15 +36,16 @@ class FixedField implements Field
      */
     public function getLabel()
     {
-        return $this->label;
+        return $this->offsetField->getLabel();
     }
 
     /**
+     * @param $input
      * @return string
      */
-    public function awkSubstr()
+    public function parse(string $input)
     {
-        return "\"{$this->value}\"";
+        return trim($this->value);
     }
 
 }
