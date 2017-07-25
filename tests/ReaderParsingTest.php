@@ -22,10 +22,10 @@ class ReaderParsingTest extends TestCase
     public function parsesMultipleFields()
     {
         $fields = [
-            new OffsetField('offset', 14, 3),
+            new OffsetField('offset', 13, 3),
             new FixedField('fixed', 'fixed'),
-            new DateTimeField('date_iso', 3, 8),
-            new DateTimeField('date_words', 3, 8, 'j/M/Y')
+            new DateTimeField('date_iso', 2, 8),
+            new DateTimeField('date_words', 2, 8, 'j/M/Y')
         ];
         $reader = Reader::fromString(file_get_contents(__DIR__.'/fixtures/input.txt'))
             ->withFields($fields)

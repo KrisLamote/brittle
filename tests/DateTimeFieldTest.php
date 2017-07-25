@@ -31,7 +31,7 @@ class DateTimeFieldTest extends TestCase
     {
         $inputDateString = '19720428';
 
-        $field = new DateTimeField('birthday', 2, 8);
+        $field = new DateTimeField('birthday', 0, 8);
 
         $this->assertEquals('1972-04-28', $field->parse($inputDateString));
 

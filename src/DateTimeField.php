@@ -6,7 +6,7 @@ use DateTime;
 
 /**
  * Class DateTimeField
- * Adapter type implementation on top of OffsetField
+ * Adapter implementation on top of OffsetField
  * The format string is NOT validated
  *
  * @package KrisLamote\Brittle
@@ -73,6 +73,8 @@ class DateTimeField implements Field
      */
     public function parse($input)
     {
+        $input = $this->offsetField->parse($input);
+
         return (new DateTime($input))->format($this->outFormat);
     }
 

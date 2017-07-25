@@ -85,6 +85,7 @@ class Reader implements Countable
     public function withField(Field $field)
     {
         $this->fields[] = $field;
+        $this->keys[] = $field->getLabel();
 
         return $this;
     }
@@ -123,25 +124,20 @@ class Reader implements Countable
      */
     public function parse()
     {
-        if (empty(exec('which awk'))) {
-            throw new MissingSystemCommandException('awk is (for the time being) required');
+        $this->csv = tmpfile(); // file handle in readwrite (w+) mode
+
+        fputcsv($this->csv, $this->keys);
+
+        rewind($this->document);
+        while (!feof($this->document)) {
+            $inputRecord = fgets($this->document);
+
+            $row = array_map(function ($field) use ($inputRecord) {
+                return $field->parse($inputRecord);
+            }, $this->fields);
+
+            fputcsv($this->csv, $row);
         }
-
-        $fieldCommands = [];
-        foreach ($this->fields as $field) {
-            $fieldCommands[] = $field->awkSubstr();
-            $this->keys[] = $field->getLabel();
-        }
-
-        $this->csv = tmpfile();
-        $source = stream_get_meta_data($this->document)['uri'];
-        $target = stream_get_meta_data($this->csv)['uri'];
-
-        $header = implode(',', $this->keys);
-        $awkFields = implode(', ', $fieldCommands);
-
-        $command = "awk -v OFS=, 'BEGIN{print \"{$header}\" }{print {$awkFields}}' {$source} > {$target}";
-        exec($command); // @todo: we need some checks here
 
         return $this;
     }
@@ -167,7 +163,7 @@ class Reader implements Countable
                 $values = [];
                 $stop = count($this->fields);
                 for ($i = 0; $i < $stop; $i++) {
-                    $values[$this->keys[$i]] = $this->fields[$i]->parse($data[$i]);
+                    $values[$this->keys[$i]] = $data[$i];
                 }
 
                 $row = array_combine($this->keys, array_map('trim', $values));

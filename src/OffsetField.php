@@ -66,7 +66,7 @@ class OffsetField implements Field
      */
     public function parse($input)
     {
-        return trim($input);
+        return trim(substr($input, $this->offset, $this->length));
     }
 
 }

@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 class ReaderTest extends TestCase
 {
     /**
-     * @ test Can be instantiated from a string
+     * @test Can be instantiated from a string
      */
     public function canBeInstantiatedFromAString()
     {
@@ -87,7 +87,6 @@ class ReaderTest extends TestCase
     /**
      * @todo Probably fits better as an integration test
      * @test
-     * @group temp
      */
     public function parsesFixedField()
     {
@@ -108,17 +107,14 @@ class ReaderTest extends TestCase
     /**
      * @todo Probably fits better as an integration test
      * @test
-     * @group temp
      */
     public function parsesDateTimeField()
     {
         $field = Mockery::mock(DateTimeField::class);
         $field->shouldReceive('getLabel')->andReturn('my_date')
-            // just making sure we get a valid date
-            ->shouldReceive('awkSubstr')->andReturn('"20170724"')
-            ->shouldReceive('parse')->with('20170724')->andReturn('Jul 2017');
+            ->shouldReceive('parse')->with('whatever')->andReturn('Jul 2017');
 
-        $reader = Reader::fromString("whatever")
+        $reader = Reader::fromString('whatever')
             ->withField($field)
             ->parse();
 
@@ -161,10 +157,10 @@ class ReaderTest extends TestCase
      */
     public function fieldsAreTrimmed()
     {
-        $fileString = "1234567890   world  1234567890";
+        $fileString = '1234567890   world  1234567890';
 
         $reader = Reader::fromString($fileString)
-            ->withField(new OffsetField('hello', 11, 10))
+            ->withField(new OffsetField('hello', 10, 10))
             ->parse();
 
         $row = $reader->first();
