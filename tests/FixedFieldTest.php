@@ -39,15 +39,4 @@ class FixedFieldTest extends TestCase
         $this->assertEmpty($field->value);
     }
 
-    /**
-     * @test transform to required portion of for an awk parsing command
-     * @see Reader
-     */
-    public function canConvertToAwkSubstringCommand()
-    {
-        $field = new FixedField('foo', 'bar');
-
-        $this->assertEquals('"bar"', $field->awkSubstr());
-    }
-
 }

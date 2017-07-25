@@ -60,18 +60,10 @@ class DateTimeField implements Field
     }
 
     /**
-     * @return string
-     */
-    public function awkSubstr()
-    {
-        return $this->offsetField->awkSubstr();
-    }
-
-    /**
      * @param $input
      * @return string
      */
-    public function parse($input)
+    public function parse(string $input)
     {
         $input = $this->offsetField->parse($input);
 

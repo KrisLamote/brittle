@@ -9,11 +9,6 @@ use KrisLamote\Brittle\Exception\RecordLengthException;
 /**
  * Class Reader
  *
- * Warning: awk is being used for the ease of parsing the
- * fixed with file to a csv. Effectively this locks the library
- * to a *nix type OS
- * Obviously to be replaced for more flexibility
- *
  * @package KrisLamote\Brittle
  */
 class Reader implements Countable
@@ -57,9 +52,16 @@ class Reader implements Countable
     /**
      * Convert the string to a stream
      *
+     * CAUTION:
      * fopen('php://temp', 'r+') only writes to disk beyond a certain
-     * file size as long as there is nothing written to disk, we can't
-     * use awk so currently using tmpfile() in favour of php://temp
+     * file size as long as there is nothing written to disk
+     *
+     * in v0.0.1 awk was used for the initial csv parsing requiring a
+     * file on the filesystem therefore tmpfile() was used in favour of
+     * php://temp
+     *
+     * so this requires some testing with larger files (at least going
+     * beyond php://temp threshold)
      *
      * @param string $content the fix-width document as a string
      * @return Reader
@@ -69,7 +71,7 @@ class Reader implements Countable
         $instance = new static();
 
         if (!empty($content)) {
-            $instance->document = tmpfile(); // see comments above
+            $instance->document = fopen('php://temp', 'r+');
             fwrite($instance->document, $content);
         }
 
@@ -185,11 +187,10 @@ class Reader implements Countable
         $targetCsv = fopen($path, 'w');
         while (($data = fgetcsv($this->csv)) !== false) {
             if (!empty($data)) {
-                $row = array_combine(
-                    $this->keys,
-                    array_map('trim', $data)
+                fputcsv(
+                    $targetCsv,
+                    array_combine($this->keys,$data)
                 );
-                fputcsv($targetCsv, $row);
             }
         }
 

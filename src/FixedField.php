@@ -40,18 +40,10 @@ class FixedField implements Field
     }
 
     /**
-     * @return string
-     */
-    public function awkSubstr()
-    {
-        return "\"{$this->value}\"";
-    }
-
-    /**
      * @param $input
      * @return string
      */
-    public function parse($input)
+    public function parse(string $input)
     {
         return trim($this->value);
     }

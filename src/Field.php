@@ -19,9 +19,9 @@ interface Field
     public function getLabel();
 
     /**
-     * AWK command to be used for extracting the field
+     * @param string $input
      * @return string
      */
-    public function awkSubstr();
+    public function parse(string $input);
 
 }
