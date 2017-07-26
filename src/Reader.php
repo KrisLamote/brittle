@@ -3,6 +3,7 @@
 namespace KrisLamote\Brittle;
 
 use Countable;
+use ForceUTF8\Encoding;
 use KrisLamote\Brittle\Exception\MissingSystemCommandException;
 use KrisLamote\Brittle\Exception\RecordLengthException;
 
@@ -132,7 +133,14 @@ class Reader implements Countable
 
         rewind($this->document);
         while (!feof($this->document)) {
-            $inputRecord = fgets($this->document);
+            $inputRecord = Encoding::toUTF8(fgets($this->document));
+
+            // convert WINDOWS line endings to LINUX ones
+            $inputRecord = str_replace(array("\r", "\n"), "\r\n", $inputRecord);
+            $currentRecordLength = mb_strlen(preg_replace( "/\r|\n/", '', $inputRecord));
+            if (!$currentRecordLength) {
+                break;
+            }
 
             $row = array_map(function ($field) use ($inputRecord) {
                 return $field->parse($inputRecord);
@@ -236,9 +244,15 @@ class Reader implements Countable
 
         rewind($this->document);
         while (!feof($this->document)) {
-            $row = fgets($this->document);
+            $row = Encoding::toUTF8(fgets($this->document));
             $this->lineCount++;
+
+            // convert WINDOWS line endings to LINUX ones
+            $row = str_replace(array("\r", "\n"), "\r\n", $row);
             $currentRecordLength = mb_strlen(preg_replace( "/\r|\n/", '', $row));
+            if (!$currentRecordLength) {
+                break;
+            }
 
             if (empty($this->recordLength)) {
                 $this->recordLength = $currentRecordLength;
