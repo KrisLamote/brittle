@@ -3,7 +3,7 @@
     "description": "A small parser for fixed width (brittle) text files",
     "type": "library",
     "require": {
-        "box/spout": "^2.7"
+        "neitanod/forceutf8": "~2.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.2",

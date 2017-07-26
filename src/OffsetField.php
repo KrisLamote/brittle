@@ -59,7 +59,7 @@ class OffsetField implements Field
      */
     public function parse(string $input)
     {
-        return trim(substr($input, $this->offset, $this->length));
+        return trim(mb_substr($input, $this->offset, $this->length));
     }
 
 }
